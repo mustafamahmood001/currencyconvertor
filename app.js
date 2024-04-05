@@ -11,9 +11,9 @@ for (let select of dropdowns) {
     let newOption = document.createElement("option");
     newOption.innerText = currCode;
     newOption.value = currCode;
-    if (select.name === "from" && currCode === "USD") {
+    if (select.name === "from" && currCode === "AED") { // Change "USD" to "AED" for selecting AED by default
       newOption.selected = "selected";
-    } else if (select.name === "to" && currCode === "PKR") {
+    } else if (select.name === "to" && currCode === "PKR") { // Change "INR" to "PKR" for selecting PKR by default
       newOption.selected = "selected";
     }
     select.append(newOption);
@@ -31,13 +31,20 @@ const updateExchangeRate = async () => {
     amtVal = 1;
     amount.value = "1";
   }
-  const URL = BASE_URL;
-  let response = await fetch(URL);
-  let data = await response.json();
-  let rate = data.rates[toCurr.value];
+  let baseCurrency = fromCurr.value;
+  const URL = `https://api.exchangerate-api.com/v4/latest/${baseCurrency}`;
 
-  let finalAmount = amtVal * rate;
-  msg.innerText = `${amtVal} ${fromCurr.value} = ${finalAmount} ${toCurr.value}`;
+  try {
+    let response = await fetch(URL);
+    let data = await response.json();
+    let rate = data.rates[toCurr.value];
+
+    let finalAmount = amtVal * rate;
+    msg.innerText = `${amtVal} ${fromCurr.value} = ${finalAmount} ${toCurr.value}`;
+  } catch (error) {
+    console.error('Error fetching exchange rates:', error);
+    msg.innerText = 'Error fetching exchange rates';
+  }
 };
 
 const updateFlag = (element) => {
